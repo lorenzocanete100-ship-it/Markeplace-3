@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cotizador de Texturado</title>
+<meta name="description" content="Calculá cuánto sale la colocación de texturado por metro cuadrado y mandá el pedido por WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: una columna en el celular; en pantallas anchas, el formulario a la izquierda y el presupuesto fijo a la derecha. */
+:root{
+  /* Color: revoque fresco (fondo), muestra de pared, tinta, azul de tiralíneas (acento), verde de envío */
+  --bg:#E7EBE9;
+  --surface:#FBFCFB;
+  --ink:#172024;
+  --muted:#526068;
+  --line:#C8D0CE;
+  --wall:#D5D2CA;
+  --accent:#2350A3;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#E0E7F5;
+  --focus:rgba(35,80,163,.35);
+  --send:#15773A;
+  --send-hover:#106430;
+  --send-ink:#FFFFFF;
+  --danger:#B3261E;
+  --scrim:rgba(10,14,16,.68);
+  --scrim-ink:#FFFFFF;
+  --shadow:0 1px 0 rgba(23,32,36,.05),0 18px 40px -20px rgba(23,32,36,.35);
+  --shadow-up:0 -10px 24px -18px rgba(23,32,36,.45);
+  /* Tipografía: Archivo ancho para títulos y cifras, Atkinson Hyperlegible para leer en el celular */
+  --font-display:"Archivo","Arial Narrow",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --line:#2F3A3E;
+    --wall:#2A2E2D; --accent:#89AAF2; --accent-ink:#0E1A33; --accent-soft:#1D2A44;
+    --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#22984F; --send-ink:#FFFFFF;
+    --danger:#FF8A80; --shadow:0 18px 40px -20px rgba(0,0,0,.7); --shadow-up:0 -10px 24px -18px rgba(0,0,0,.8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --line:#2F3A3E;
+  --wall:#2A2E2D; --accent:#89AAF2; --accent-ink:#0E1A33; --accent-soft:#1D2A44;
+  --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#22984F; --send-ink:#FFFFFF;
+  --danger:#FF8A80; --shadow:0 18px 40px -20px rgba(0,0,0,.7); --shadow-up:0 -10px 24px -18px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-bottom:96px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance}
+button,input,textarea{font:inherit;color:inherit}
+p{margin:0}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* Encabezado: una muestra de pared texturada */
+.wall{background-color:var(--wall);background-image:var(--grain-media,none);background-size:200px 200px;border-bottom:1px solid var(--line)}
+.wall-in{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 24px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px 40px}
+.head-main{min-width:0;max-width:620px}
+.kicker{font-family:var(--font-display);font-weight:700;font-stretch:112%;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-height:.95;letter-spacing:-.015em;margin:.4rem 0 .75rem}
+.chalk{display:block;height:3px;width:min(220px,55%);background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--focus)}
+.lead{max-width:48ch;margin-top:.9rem}
+.head-side{display:grid;gap:10px;justify-items:start}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.tag{font-size:.85rem;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.head-wa{display:grid;line-height:1.2}
+.head-wa span{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.head-wa strong{font-family:var(--font-display);font-weight:800;font-stretch:110%;font-size:1.35rem;font-variant-numeric:tabular-nums}
+
+/* Contenido */
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:24px 132px;display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+.form{display:grid;min-width:0}
+.block{padding-block:22px;border-top:1px solid var(--line);display:grid;gap:12px;min-width:0}
+.block:first-child{border-top:0;padding-top:4px}
+.block-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px}
+.block h2{font-size:1.25rem;font-weight:800;font-stretch:106%}
+.hint{color:var(--muted);font-size:.93rem}
+.err{color:var(--danger);font-size:.93rem;font-weight:700}
+
+/* Opciones en tarjeta (altura, textura) */
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.opt{position:relative;display:block;cursor:pointer;min-width:0}
+.opt input,.chip input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.opt-body{display:flex;flex-direction:column;gap:2px;height:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);transition:border-color .15s,background-color .15s}
+.opt-title{font-family:var(--font-display);font-weight:800;font-stretch:104%;font-size:1.06rem}
+.opt-price{font-family:var(--font-display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.opt input:checked+.opt-body{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt input:checked+.opt-body .opt-price{color:var(--accent)}
+.opt input:focus-visible+.opt-body,.chip input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.swatch{display:block;height:58px;margin-bottom:8px;border-radius:6px;border:1px solid var(--line);background-color:var(--wall);background-size:120px 120px}
+.swatch-media{background-image:var(--grain-media,none)}
+.swatch-fina{background-image:var(--grain-fina,none)}
+
+/* Chips (lugar, zona) */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:block}
+.chip span{display:block;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:.97rem;transition:background-color .15s}
+.chip input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* Campos */
+.m2{display:flex;max-width:300px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.m2:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--focus)}
+.m2.invalid{border-color:var(--danger)}
+.m2 input{flex:1;min-width:0;border:0;background:transparent;padding:10px 14px;font-family:var(--font-display);font-weight:800;font-stretch:110%;font-size:1.7rem;font-variant-numeric:tabular-nums;outline:none}
+.m2 .unit{display:flex;align-items:center;padding-inline:16px;font-weight:700;color:var(--muted);border-left:1px solid var(--line)}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-weight:700}
+.field label small{font-weight:400;color:var(--muted);font-size:.88rem}
+.input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);font-size:1rem}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--focus)}
+textarea.input{min-height:96px;resize:vertical}
+.fields{display:grid;gap:14px}
+
+details.calc{border:1.5px dashed var(--line);border-radius:var(--r);padding:10px 14px}
+details.calc summary{cursor:pointer;font-weight:700;color:var(--accent)}
+details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset:4px;border-radius:4px}
+.calc-body{display:grid;gap:10px;margin-top:12px}
+.calc-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.mini{display:grid;gap:4px;flex:1 1 96px;min-width:0}
+.mini label{font-size:.86rem;font-weight:700;color:var(--muted)}
+.times{padding-bottom:11px;font-weight:700;color:var(--muted)}
+.calc-msg{font-size:.93rem}
+
+/* Fotos */
+.drop{display:grid;gap:2px;justify-items:start;padding:18px;border:1.5px dashed var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer}
+.drop:focus-within,.drop.over{border-color:var(--accent);box-shadow:0 0 0 3px var(--focus)}
+.drop-title{font-family:var(--font-display);font-weight:800;font-size:1.08rem;color:var(--accent)}
+.drop-sub{color:var(--muted);font-size:.93rem}
+.thumbs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.thumbs li{position:relative;aspect-ratio:1;max-width:100%;border-radius:8px;overflow:hidden;background:var(--wall)}
+.thumbs img{display:block;width:100%;height:100%;object-fit:cover}
+.thumbs button{position:absolute;top:6px;right:6px;border:0;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700;background:var(--scrim);color:var(--scrim-ink);cursor:pointer}
+.thumbs button:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:11px 18px;border-radius:var(--r);border:1.5px solid transparent;font-weight:700;font-size:1rem;line-height:1.2;text-align:center;text-decoration:none;cursor:pointer;transition:background-color .15s}
+.btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btn.accent{background:var(--accent);color:var(--accent-ink)}
+.btn.line{background:transparent;border-color:var(--accent);color:var(--accent)}
+.btn.small{min-height:36px;padding:6px 12px;font-size:.9rem}
+.btn.send{width:100%;min-height:56px;font-size:1.06rem;background:var(--send);color:var(--send-ink)}
+.btn.send:hover{background:var(--send-hover)}
+.btn svg{flex:none}
+
+/* Presupuesto */
+.quote{display:grid;gap:16px;min-width:0;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
+.q-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.q-head h2{font-size:1rem;font-weight:800;font-stretch:112%;letter-spacing:.08em;text-transform:uppercase}
+.q-date{font-family:var(--font-display);font-size:.86rem;color:var(--muted)}
+.q-lines{display:grid;gap:8px;margin:0}
+.q-lines div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.q-lines dt{min-width:0;color:var(--muted)}
+.q-lines dd{margin:0;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.q-lines .q-strong{padding-top:8px;border-top:1px dashed var(--line)}
+.q-lines .q-strong dt{color:var(--ink);font-weight:700}
+.q-total{display:grid;gap:4px;padding-top:14px;border-top:2px solid var(--ink)}
+.q-total span{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.q-total output{font-family:var(--font-display);font-weight:900;font-stretch:112%;font-size:clamp(2.1rem,9vw,2.5rem);line-height:1.05;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.q-note{font-family:var(--font-display);color:var(--muted);font-size:.93rem}
+.photo-step{display:grid;gap:8px}
+.photo-step p{font-size:.93rem}
+.contact{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
+.contact span{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.contact strong{font-family:var(--font-display);font-weight:800;font-stretch:108%;font-size:1.2rem;font-variant-numeric:tabular-nums;user-select:all;-webkit-user-select:all}
+.fine{font-size:.85rem;color:var(--muted)}
+
+/* Barra inferior en el celular */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:var(--shadow-up)}
+.bar-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.bar strong{font-family:var(--font-display);font-weight:900;font-stretch:112%;font-size:1.4rem;font-variant-numeric:tabular-nums}
+
+@media (min-width:880px){
+  .wrap{grid-template-columns:minmax(0,1fr) 360px;gap:44px;align-items:start;padding-block-end:56px}
+  .quote{position:sticky;top:16px}
+  .bar{display:none!important}
+  html{scroll-padding-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wall">
+  <div class="wall-in">
+    <div class="head-main">
+      <p class="kicker">Colocación de texturado · Mano de obra</p>
+      <h1>Cotizá tu pared</h1>
+      <span class="chalk" aria-hidden="true"></span>
+      <p class="lead">Elegí la altura y la textura, cargá los metros cuadrados y mandá el pedido por WhatsApp. El precio incluye la base.</p>
+    </div>
+    <div class="head-side">
+      <ul class="tags"><li class="tag">Base incluida</li><li class="tag">Interior y exterior</li></ul>
+      <p class="head-wa"><span>WhatsApp</span><strong data-wa-visible>11 3765-4777</strong></p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <form class="form" id="form" novalidate>
+    <section class="block" aria-labelledby="h-sup">
+      <div class="block-head"><h2 id="h-sup">Superficie</h2><p class="hint">Metros cuadrados a texturar</p></div>
+      <label for="m2" class="vh">Metros cuadrados</label>
+      <div class="m2" id="m2-box"><input id="m2" name="m2" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 40" aria-describedby="m2-err"><span class="unit">m²</span></div>
+      <p class="err" id="m2-err" role="alert" hidden></p>
+      <details class="calc" id="calc">
+        <summary>¿No sabés los metros? Calculá por largo × alto</summary>
+        <div class="calc-body">
+          <div class="calc-row">
+            <div class="mini"><label for="largo">Largo (m)</label><input class="input" id="largo" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 6"></div>
+            <span class="times" aria-hidden="true">×</span>
+            <div class="mini"><label for="alto">Alto (m)</label><input class="input" id="alto" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 2,7"></div>
+            <button type="button" class="btn accent" id="add-wall">Sumar pared</button>
+          </div>
+          <p class="calc-msg hint" id="calc-msg" aria-live="polite">Cada pared que sumás se agrega a la superficie. Si hay varias paredes, sumalas de a una.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="block" aria-labelledby="h-alt">
+      <div class="block-head"><h2 id="h-alt">Altura de trabajo</h2><p class="hint">Precio por m² con textura media</p></div>
+      <div class="opts" id="opts-altura" role="radiogroup" aria-labelledby="h-alt"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-tex">
+      <div class="block-head"><h2 id="h-tex">Textura</h2><p class="hint" id="tex-hint"></p></div>
+      <div class="opts" id="opts-textura" role="radiogroup" aria-labelledby="h-tex"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-lugar">
+      <div class="block-head"><h2 id="h-lugar">Interior o exterior</h2></div>
+      <div class="chips" id="chips-lugar" role="radiogroup" aria-labelledby="h-lugar"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-zona">
+      <div class="block-head"><h2 id="h-zona">Zona de la obra</h2></div>
+      <div class="chips" id="chips-zona" role="radiogroup" aria-labelledby="h-zona"></div>
+      <div class="field"><label for="localidad">Barrio o localidad <small>(opcional)</small></label><input class="input" id="localidad" name="localidad" type="text" autocomplete="address-level2" placeholder="Ej: Lanús"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-fotos">
+      <div class="block-head"><h2 id="h-fotos">Fotos de la pared</h2><p class="hint" id="fotos-count"></p></div>
+      <label class="drop" id="drop" for="fotos">
+        <input class="vh" id="fotos" type="file" accept="image/*" multiple>
+        <span class="drop-title">Agregar fotos</span>
+        <span class="drop-sub" id="drop-sub">Sacá una foto o elegila de la galería.</span>
+      </label>
+      <p class="err" id="fotos-err" role="alert" hidden></p>
+      <ul class="thumbs" id="thumbs" aria-label="Fotos agregadas"></ul>
+    </section>
+
+    <section class="block" aria-labelledby="h-datos">
+      <div class="block-head"><h2 id="h-datos">Tus datos</h2></div>
+      <div class="fields">
+        <div class="field"><label for="nombre">Nombre <small>(opcional)</small></label><input class="input" id="nombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Marcela"></div>
+        <div class="field"><label for="comentario">Comentario <small>(opcional)</small></label><textarea class="input" id="comentario" name="comentario" placeholder="Ej: frente de casa, la pared tiene humedad abajo"></textarea></div>
+      </div>
+    </section>
+  </form>
+
+  <aside class="quote" id="quote" aria-labelledby="q-title">
+    <div class="q-head"><h2 id="q-title">Presupuesto estimado</h2><span class="q-date" id="q-date"></span></div>
+    <dl class="q-lines">
+      <div><dt id="l-base-label">Textura media, hasta 4 m</dt><dd id="l-base">—</dd></div>
+      <div id="row-fina" hidden><dt>Textura fina</dt><dd id="l-fina">—</dd></div>
+      <div><dt>Base</dt><dd>Incluida</dd></div>
+      <div class="q-strong"><dt>Precio por m²</dt><dd id="l-pm2">—</dd></div>
+      <div><dt>Superficie</dt><dd id="l-m2">—</dd></div>
+    </dl>
+    <div class="q-total"><span>Total mano de obra</span><output id="total" aria-live="polite">—</output></div>
+    <p class="q-note" id="q-note">Cargá los metros cuadrados para ver el total.</p>
+    <a class="btn send" id="send" href="https://wa.me/5491137654777" target="_blank" rel="noopener noreferrer">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3zm0 1.8a7.2 7.2 0 1 1-3.7 13.4l-.3-.2-2.4.6.7-2.3-.2-.3A7.2 7.2 0 0 1 12 4.8z"/></svg>
+      Enviar pedido por WhatsApp
+    </a>
+    <p class="err" id="send-err" role="alert" hidden></p>
+    <div class="photo-step" id="photo-step"></div>
+    <div class="contact">
+      <p><span>WhatsApp</span><strong id="wa-num" data-wa-visible>11 3765-4777</strong></p>
+      <button type="button" class="btn line small" id="copy">Copiar número</button>
+    </div>
+    <p class="fine">Precio estimado de mano de obra con base incluida. Se confirma al ver la obra o las fotos.</p>
+  </aside>
+</main>
+
+<div class="bar" id="bar">
+  <div><span class="bar-label">Total estimado</span><strong id="bar-total">—</strong></div>
+  <button type="button" class="btn accent" id="bar-go">Ver y enviar</button>
+</div>
+
+<noscript><p style="padding:16px">Activá JavaScript para usar el cotizador.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================================================================
+     CONFIGURACIÓN — cambiá acá los precios, las zonas y el WhatsApp
+     ================================================================ */
+  var CONFIG = {
+    // Formato internacional: 54 + 9 + característica sin 0 + número sin 15
+    whatsapp: '5491137654777',
+    whatsappVisible: '11 3765-4777',
+    // Precio por m² de mano de obra con textura media, según altura de trabajo
+    alturas: [
+      { id: '4',   label: 'Hasta 4 m',  max: 4, precio: 5000 },
+      { id: '5',   label: 'Hasta 5 m',  max: 5, precio: 6000 },
+      { id: '6',   label: 'Hasta 6 m',  max: 6, precio: 7000 },
+      { id: 'mas', label: 'Más de 6 m', max: Infinity, precio: null } // null = a convenir
+    ],
+    // Recargo por m² según la textura
+    texturas: [
+      { id: 'media', label: 'Textura media', extra: 0 },
+      { id: 'fina',  label: 'Textura fina',  extra: 1000 }
+    ],
+    lugares: ['Interior', 'Exterior', 'Interior y exterior'],
+    zonas: ['CABA', 'Zona Norte', 'Zona Sur', 'Zona Oeste', 'Otra'],
+    maxFotos: 8
+  };
+
+  var $ = function (sel) { return document.querySelector(sel); };
+  var fmtNum = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 });
+  var fmtInt = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+  function money(n) { return '$' + fmtInt.format(n); }
+
+  var form = $('#form');
+  var photos = []; // { file, url }
+
+  /* ---------- Números escritos a la argentina: "35", "35,5", "1.200" ---------- */
+  function parseNum(value, allowThousands) {
+    var t = String(value || '').trim().replace(/\s+/g, '').replace(/m²|m2$/i, '');
+    if (!t) return NaN;
+    if (t.indexOf(',') !== -1) t = t.replace(/\./g, '').replace(',', '.');
+    else if (allowThousands && /^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+    if (!/^\d*\.?\d+$/.test(t)) return NaN;
+    return Number(t);
+  }
+
+  /* ---------- Opciones ---------- */
+  function optCard(name, value, checked, inner) {
+    return '<label class="opt"><input type="radio" name="' + name + '" value="' + value + '"' +
+      (checked ? ' checked' : '') + '><span class="opt-body">' + inner + '</span></label>';
+  }
+  function chip(name, value) {
+    return '<label class="chip"><input type="radio" name="' + name + '" value="' + value + '"><span>' + value + '</span></label>';
+  }
+
+  $('#opts-altura').innerHTML = CONFIG.alturas.map(function (a, i) {
+    return optCard('altura', a.id, i === 0,
+      '<span class="opt-title">' + a.label + '</span>' +
+      '<span class="opt-price">' + (a.precio == null ? 'A convenir' : money(a.precio) + '/m²') + '</span>');
+  }).join('');
+
+  $('#opts-textura').innerHTML = CONFIG.texturas.map(function (t, i) {
+    return optCard('textura', t.id, i === 0,
+      '<span class="swatch swatch-' + t.id + '" aria-hidden="true"></span>' +
+      '<span class="opt-title">' + t.label + '</span>' +
+      '<span class="opt-price">' + (t.extra ? '+ ' + money(t.extra) + '/m²' : 'Precio base') + '</span>');
+  }).join('');
+
+  var fina = CONFIG.texturas.filter(function (t) { return t.extra; })[0];
+  $('#tex-hint').textContent = fina ? 'La fina suma ' + money(fina.extra) + ' por m²' : '';
+  $('#chips-lugar').innerHTML = CONFIG.lugares.map(function (l) { return chip('lugar', l); }).join('');
+  $('#chips-zona').innerHTML = CONFIG.zonas.map(function (z) { return chip('zona', z); }).join('');
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-wa-visible]'), function (el) {
+    el.textContent = CONFIG.whatsappVisible;
+  });
+  $('#q-date').textContent = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  /* ---------- Estado y cálculo ---------- */
+  function leer() {
+    var fd = new FormData(form);
+    return {
+      m2: parseNum(fd.get('m2'), true),
+      m2Texto: String(fd.get('m2') || '').trim(),
+      altura: fd.get('altura'),
+      textura: fd.get('textura'),
+      lugar: fd.get('lugar') || '',
+      zona: fd.get('zona') || '',
+      localidad: String(fd.get('localidad') || '').trim(),
+      nombre: String(fd.get('nombre') || '').trim(),
+      comentario: String(fd.get('comentario') || '').trim()
+    };
+  }
+
+  function calcular(s) {
+    var alt = CONFIG.alturas.filter(function (a) { return a.id === s.altura; })[0] || CONFIG.alturas[0];
+    var tex = CONFIG.texturas.filter(function (t) { return t.id === s.textura; })[0] || CONFIG.texturas[0];
+    var precioM2 = alt.precio == null ? null : alt.precio + tex.extra;
+    var total = precioM2 != null && s.m2 > 0 ? Math.round(precioM2 * s.m2) : null;
+    return { alt: alt, tex: tex, precioM2: precioM2, total: total };
+  }
+
+  function mensaje(s, c) {
+    var L = ['Hola! Quiero cotizar colocación de texturado (mano de obra con base incluida).', ''];
+    if (s.nombre) L.push('Nombre: ' + s.nombre);
+    var zona = [s.zona, s.localidad].filter(Boolean).join(' - ');
+    if (zona) L.push('Zona: ' + zona);
+    if (s.lugar) L.push('Lugar: ' + s.lugar);
+    L.push('Superficie: ' + (s.m2 > 0 ? fmtNum.format(s.m2) + ' m²' : 'a definir'));
+    L.push('Altura: ' + c.alt.label.toLowerCase());
+    L.push('Textura: ' + c.tex.label.replace('Textura ', ''));
+    if (c.precioM2 != null) L.push('Precio por m²: ' + money(c.precioM2));
+    L.push('Total estimado: ' + (c.total != null ? money(c.total) : (c.precioM2 == null ? 'a convenir' : 'a definir')));
+    if (photos.length) L.push('Fotos: ' + photos.length + ' (te las mando por acá)');
+    if (s.comentario) { L.push(''); L.push('Comentario: ' + s.comentario); }
+    return L.join('\n');
+  }
+
+  function render() {
+    var s = leer();
+    var c = calcular(s);
+    var aConvenir = c.precioM2 == null;
+
+    $('#l-base-label').textContent = 'Textura media, ' + c.alt.label.toLowerCase();
+    $('#l-base').textContent = aConvenir ? 'A convenir' : money(c.alt.precio) + '/m²';
+    $('#row-fina').hidden = aConvenir || !c.tex.extra;
+    $('#l-fina').textContent = '+ ' + money(c.tex.extra) + '/m²';
+    $('#l-pm2').textContent = aConvenir ? 'A convenir' : money(c.precioM2);
+    $('#l-m2').textContent = s.m2 > 0 ? fmtNum.format(s.m2) + ' m²' : '—';
+
+    var totalTxt = c.total != null ? money(c.total) : (aConvenir ? 'A convenir' : '—');
+    $('#total').textContent = totalTxt;
+    $('#bar-total').textContent = totalTxt;
+
+    var note;
+    if (aConvenir) note = 'Para más de 6 m de altura el precio se arregla según la obra. Mandá el pedido igual y te respondemos.';
+    else if (!(s.m2 > 0)) note = 'Cargá los metros cuadrados para ver el total.';
+    else note = fmtNum.format(s.m2) + ' m² × ' + money(c.precioM2) + ' el m².';
+    $('#q-note').textContent = note;
+
+    $('#send').href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(mensaje(s, c));
+
+    if (s.m2 > 0) { setM2Error(''); $('#send-err').hidden = true; }
+    renderPhotoStep();
+  }
+
+  function setM2Error(msg) {
+    var err = $('#m2-err');
+    err.textContent = msg;
+    err.hidden = !msg;
+    $('#m2-box').classList.toggle('invalid', !!msg);
+    $('#m2').setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+
+  function smooth() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  }
+
+  form.addEventListener('input', render);
+  form.addEventListener('change', render);
+  form.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  $('#m2').addEventListener('blur', function () {
+    var s = leer();
+    if (s.m2Texto && !(s.m2 > 0)) setM2Error('Escribí solo el número, por ejemplo 35 o 35,5.');
+  });
+
+  $('#send').addEventListener('click', function (e) {
+    var s = leer();
+    if (!(s.m2 > 0)) {
+      e.preventDefault();
+      setM2Error(s.m2Texto ? 'Escribí solo el número, por ejemplo 35 o 35,5.' : 'Cargá los metros cuadrados para enviar el pedido.');
+      var err = $('#send-err');
+      err.textContent = 'Falta la superficie en m².';
+      err.hidden = false;
+      $('#m2').scrollIntoView({ block: 'center', behavior: smooth() });
+      $('#m2').focus({ preventScroll: true });
+    }
+  });
+
+  /* ---------- Calcular m² por largo × alto ---------- */
+  $('#add-wall').addEventListener('click', function () {
+    var largo = parseNum($('#largo').value, false);
+    var alto = parseNum($('#alto').value, false);
+    var msg = $('#calc-msg');
+    if (!(largo > 0 && alto > 0)) {
+      msg.textContent = 'Completá el largo y el alto en metros, por ejemplo 6 y 2,7.';
+      return;
+    }
+    var area = Math.round(largo * alto * 100) / 100;
+    var actual = parseNum($('#m2').value, true);
+    var nuevo = Math.round(((actual > 0 ? actual : 0) + area) * 100) / 100;
+    $('#m2').value = fmtNum.format(nuevo);
+
+    var texto = 'Sumaste ' + fmtNum.format(area) + ' m² (' + fmtNum.format(largo) + ' × ' + fmtNum.format(alto) + ' m).';
+    var necesaria = CONFIG.alturas.filter(function (a) { return alto <= a.max; })[0];
+    var marcada = form.querySelector('input[name="altura"]:checked');
+    var idxMarcada = CONFIG.alturas.map(function (a) { return a.id; }).indexOf(marcada ? marcada.value : '');
+    if (necesaria && CONFIG.alturas.indexOf(necesaria) > idxMarcada) {
+      form.querySelector('input[name="altura"][value="' + necesaria.id + '"]').checked = true;
+      texto += ' Cambiamos la altura a ' + necesaria.label.toLowerCase() + '.';
+    }
+    msg.textContent = texto;
+    $('#largo').value = '';
+    $('#alto').value = '';
+    $('#largo').focus();
+    render();
+  });
+
+  /* ---------- Fotos ---------- */
+  function addFiles(list) {
+    var imgs = Array.prototype.filter.call(list || [], function (f) {
+      return /^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name);
+    });
+    var lugar = CONFIG.maxFotos - photos.length;
+    var err = $('#fotos-err');
+    err.hidden = true;
+    if (imgs.length > lugar) {
+      err.textContent = 'Podés subir hasta ' + CONFIG.maxFotos + ' fotos. Quitá alguna para agregar otra.';
+      err.hidden = false;
+    } else if (list && list.length && !imgs.length) {
+      err.textContent = 'Ese archivo no es una foto. Elegí una imagen JPG o PNG.';
+      err.hidden = false;
+    }
+    imgs.slice(0, Math.max(lugar, 0)).forEach(function (f) {
+      photos.push({ file: f, url: URL.createObjectURL(f) });
+    });
+    renderThumbs();
+    render();
+  }
+
+  function renderThumbs() {
+    var ul = $('#thumbs');
+    ul.replaceChildren();
+    photos.forEach(function (p, i) {
+      var li = document.createElement('li');
+      var img = document.createElement('img');
+      img.src = p.url;
+      img.alt = 'Foto ' + (i + 1);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Quitar';
+      b.setAttribute('aria-label', 'Quitar foto ' + (i + 1));
+      b.addEventListener('click', function () {
+        URL.revokeObjectURL(p.url);
+        photos.splice(photos.indexOf(p), 1);
+        $('#fotos-err').hidden = true;
+        renderThumbs();
+        render();
+      });
+      li.appendChild(img);
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+    $('#fotos-count').textContent = photos.length ? photos.length + ' de ' + CONFIG.maxFotos : 'Hasta ' + CONFIG.maxFotos;
+    $('#drop-sub').textContent = photos.length >= CONFIG.maxFotos
+      ? 'Llegaste al máximo de fotos.'
+      : 'Sacá una foto o elegila de la galería. Ayuda a cotizar mejor.';
+  }
+
+  $('#fotos').addEventListener('change', function (e) {
+    addFiles(e.target.files);
+    e.target.value = '';
+  });
+  var drop = $('#drop');
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    drop.addEventListener(ev, function () { drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer) addFiles(e.dataTransfer.files);
+  });
+
+  function canShareFiles() {
+    try {
+      if (!photos.length || !navigator.share || !navigator.canShare) return false;
+      var policy = document.permissionsPolicy || document.featurePolicy;
+      if (policy && policy.allowsFeature && !policy.allowsFeature('web-share')) return false;
+      return navigator.canShare({ files: photos.map(function (p) { return p.file; }) });
+    } catch (e) { return false; }
+  }
+
+  var shareFailed = false;
+  function renderPhotoStep() {
+    var box = $('#photo-step');
+    box.replaceChildren();
+    var p = document.createElement('p');
+    if (!photos.length) {
+      p.className = 'hint';
+      p.textContent = 'Si tenés fotos de la pared, agregalas arriba: con fotos la cotización es más precisa.';
+      box.appendChild(p);
+      return;
+    }
+    var cuales = photos.length === 1 ? 'la foto' : 'las ' + photos.length + ' fotos';
+    if (canShareFiles() && !shareFailed) {
+      p.textContent = 'Después de mandar el pedido, tocá acá, elegí WhatsApp y el chat de ' + CONFIG.whatsappVisible + '.';
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn line';
+      b.textContent = 'Enviar ' + cuales;
+      b.addEventListener('click', compartirFotos);
+      box.appendChild(b);
+      box.appendChild(p);
+    } else {
+      p.textContent = 'Cuando se abra el chat, adjuntá ' + cuales + ' con el clip de WhatsApp.';
+      box.appendChild(p);
+    }
+  }
+
+  function compartirFotos() {
+    var files = photos.map(function (p) { return p.file; });
+    navigator.share({ files: files }).catch(function (e) {
+      if (e && e.name === 'AbortError') return;
+      shareFailed = true;
+      renderPhotoStep();
+    });
+  }
+
+  /* ---------- Copiar número ---------- */
+  $('#copy').addEventListener('click', function () {
+    var btn = this;
+    var listo = function () {
+      btn.textContent = 'Copiado';
+      setTimeout(function () { btn.textContent = 'Copiar número'; }, 2000);
+    };
+    var seleccionar = function () {
+      var r = document.createRange();
+      r.selectNodeContents($('#wa-num'));
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      btn.textContent = 'Número seleccionado';
+      setTimeout(function () { btn.textContent = 'Copiar número'; }, 2500);
+    };
+    try {
+      navigator.clipboard.writeText(CONFIG.whatsappVisible).then(listo, seleccionar);
+    } catch (e) { seleccionar(); }
+  });
+
+  /* ---------- Barra inferior (celular) ---------- */
+  $('#bar-go').addEventListener('click', function () {
+    $('#quote').scrollIntoView({ block: 'start', behavior: smooth() });
+  });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      $('#bar').hidden = entries[0].isIntersecting;
+    }, { threshold: 0.15 }).observe($('#quote'));
+  }
+
+  /* ---------- Muestras de textura dibujadas ---------- */
+  function grain(size, count, rMin, rMax, relief) {
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var x = c.getContext('2d');
+    if (!x) return '';
+    function dot(px, py, r, color) {
+      x.fillStyle = color;
+      for (var ox = -size; ox <= size; ox += size) {
+        for (var oy = -size; oy <= size; oy += size) {
+          var X = px + ox, Y = py + oy;
+          if (X + r < 0 || X - r > size || Y + r < 0 || Y - r > size) continue;
+          x.beginPath();
+          x.arc(X, Y, r, 0, Math.PI * 2);
+          x.fill();
+        }
+      }
+    }
+    for (var i = 0; i < count; i++) {
+      var px = Math.random() * size, py = Math.random() * size;
+      var r = rMin + Math.random() * (rMax - rMin);
+      dot(px + relief, py + relief, r, 'rgba(0,0,0,' + (0.1 + Math.random() * 0.18).toFixed(3) + ')');
+      dot(px - relief * 0.6, py - relief * 0.6, r * 0.8, 'rgba(255,255,255,' + (0.16 + Math.random() * 0.3).toFixed(3) + ')');
+    }
+    try { return c.toDataURL('image/png'); } catch (e) { return ''; }
+  }
+  var media = grain(160, 900, 0.9, 2.4, 0.8);
+  var finaG = grain(160, 2600, 0.35, 0.9, 0.35);
+  if (media) document.documentElement.style.setProperty('--grain-media', 'url("' + media + '")');
+  if (finaG) document.documentElement.style.setProperty('--grain-fina', 'url("' + finaG + '")');
+
+  renderThumbs();
+  render();
+})();
+</script>
+</body>
+</html>

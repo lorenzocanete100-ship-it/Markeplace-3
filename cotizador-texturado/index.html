@@ -16,6 +16,7 @@
   --surface:#FBFCFB;
   --ink:#172024;
   --muted:#526068;
+  --wall-muted:#3D4850;
   --line:#C8D0CE;
   --wall:#D5D2CA;
   --accent:#2350A3;
@@ -37,17 +38,17 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --line:#2F3A3E;
+    --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --wall-muted:#C3CDD0; --line:#2F3A3E;
     --wall:#2A2E2D; --accent:#89AAF2; --accent-ink:#0E1A33; --accent-soft:#1D2A44;
-    --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#22984F; --send-ink:#FFFFFF;
+    --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#187A3D; --send-ink:#FFFFFF;
     --danger:#FF8A80; --shadow:0 18px 40px -20px rgba(0,0,0,.7); --shadow-up:0 -10px 24px -18px rgba(0,0,0,.8);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --line:#2F3A3E;
+  --bg:#121719; --surface:#1A2124; --ink:#E6ECEA; --muted:#9AA8AD; --wall-muted:#C3CDD0; --line:#2F3A3E;
   --wall:#2A2E2D; --accent:#89AAF2; --accent-ink:#0E1A33; --accent-soft:#1D2A44;
-  --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#22984F; --send-ink:#FFFFFF;
+  --focus:rgba(137,170,242,.4); --send:#1C8444; --send-hover:#187A3D; --send-ink:#FFFFFF;
   --danger:#FF8A80; --shadow:0 18px 40px -20px rgba(0,0,0,.7); --shadow-up:0 -10px 24px -18px rgba(0,0,0,.8);
   color-scheme:dark;
 }
@@ -65,7 +66,7 @@ p{margin:0}
 .wall{background-color:var(--wall);background-image:var(--grain-media,none);background-size:200px 200px;border-bottom:1px solid var(--line)}
 .wall-in{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 24px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px 40px}
 .head-main{min-width:0;max-width:620px}
-.kicker{font-family:var(--font-display);font-weight:700;font-stretch:112%;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.kicker{font-family:var(--font-display);font-weight:700;font-stretch:112%;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--wall-muted)}
 h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-height:.95;letter-spacing:-.015em;margin:.4rem 0 .75rem}
 .chalk{display:block;height:3px;width:min(220px,55%);background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--focus)}
 .lead{max-width:48ch;margin-top:.9rem}
@@ -73,7 +74,7 @@ h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-hei
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
 .tag{font-size:.85rem;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
 .head-wa{display:grid;line-height:1.2}
-.head-wa span{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.head-wa span{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wall-muted)}
 .head-wa strong{font-family:var(--font-display);font-weight:800;font-stretch:110%;font-size:1.35rem;font-variant-numeric:tabular-nums}
 
 /* Contenido */
@@ -95,7 +96,7 @@ h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-hei
 .opt-price{font-family:var(--font-display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .opt input:checked+.opt-body{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
 .opt input:checked+.opt-body .opt-price{color:var(--accent)}
-.opt input:focus-visible+.opt-body,.chip input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.opt input:focus-visible+.opt-body,.chip input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
 .swatch{display:block;height:58px;margin-bottom:8px;border-radius:6px;border:1px solid var(--line);background-color:var(--wall);background-size:120px 120px}
 .swatch-media{background-image:var(--grain-media,none)}
 .swatch-fina{background-image:var(--grain-fina,none)}
@@ -118,11 +119,12 @@ h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-hei
 .input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);font-size:1rem}
 .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--focus)}
 textarea.input{min-height:96px;resize:vertical}
+::placeholder{color:var(--muted);opacity:1}
 .fields{display:grid;gap:14px}
 
 details.calc{border:1.5px dashed var(--line);border-radius:var(--r);padding:10px 14px}
 details.calc summary{cursor:pointer;font-weight:700;color:var(--accent)}
-details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset:4px;border-radius:4px}
+details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:4px}
 .calc-body{display:grid;gap:10px;margin-top:12px}
 .calc-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
 .mini{display:grid;gap:4px;flex:1 1 96px;min-width:0}
@@ -139,11 +141,11 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
 .thumbs li{position:relative;aspect-ratio:1;max-width:100%;border-radius:8px;overflow:hidden;background:var(--wall)}
 .thumbs img{display:block;width:100%;height:100%;object-fit:cover}
 .thumbs button{position:absolute;top:6px;right:6px;border:0;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700;background:var(--scrim);color:var(--scrim-ink);cursor:pointer}
-.thumbs button:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+.thumbs button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 
 /* Botones */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:11px 18px;border-radius:var(--r);border:1.5px solid transparent;font-weight:700;font-size:1rem;line-height:1.2;text-align:center;text-decoration:none;cursor:pointer;transition:background-color .15s}
-.btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .btn.accent{background:var(--accent);color:var(--accent-ink)}
 .btn.line{background:transparent;border-color:var(--accent);color:var(--accent)}
 .btn.small{min-height:36px;padding:6px 12px;font-size:.9rem}
@@ -155,6 +157,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
 .quote{display:grid;gap:16px;min-width:0;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
 .q-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;padding-bottom:12px;border-bottom:2px solid var(--ink)}
 .q-head h2{font-size:1rem;font-weight:800;font-stretch:112%;letter-spacing:.08em;text-transform:uppercase}
+.q-head h2:focus{outline:none}
 .q-date{font-family:var(--font-display);font-size:.86rem;color:var(--muted)}
 .q-lines{display:grid;gap:8px;margin:0}
 .q-lines div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
@@ -185,6 +188,10 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   html{scroll-padding-bottom:0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (forced-colors:active){
+  .opt input:checked+.opt-body,.chip input:checked+span{forced-color-adjust:none;background:Highlight;color:HighlightText;border-color:Highlight}
+  .opt input:checked+.opt-body .opt-price{color:HighlightText}
+}
 </style>
 </head>
 <body>
@@ -202,6 +209,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
     </div>
   </div>
 </header>
+<noscript><p style="padding:16px">Activá JavaScript para usar el cotizador.</p></noscript>
 
 <main class="wrap">
   <form class="form" id="form" novalidate>
@@ -266,7 +274,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   </form>
 
   <aside class="quote" id="quote" aria-labelledby="q-title">
-    <div class="q-head"><h2 id="q-title">Presupuesto estimado</h2><span class="q-date" id="q-date"></span></div>
+    <div class="q-head"><h2 id="q-title" tabindex="-1">Presupuesto estimado</h2><span class="q-date" id="q-date"></span></div>
     <dl class="q-lines">
       <div><dt id="l-base-label">Textura media, hasta 4 m</dt><dd id="l-base">—</dd></div>
       <div id="row-fina" hidden><dt>Textura fina</dt><dd id="l-fina">—</dd></div>
@@ -295,11 +303,11 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   <button type="button" class="btn accent" id="bar-go">Ver y enviar</button>
 </div>
 
-<noscript><p style="padding:16px">Activá JavaScript para usar el cotizador.</p></noscript>
 
 <script>
 (function () {
   'use strict';
+  document.documentElement.lang = 'es-AR';
 
   /* ================================================================
      CONFIGURACIÓN — cambiá acá los precios, las zonas y el WhatsApp
@@ -376,10 +384,13 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   $('#q-date').textContent = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
 
   /* ---------- Estado y cálculo ---------- */
+  // Se redondea a 2 decimales para que el total use los mismos m² que se muestran
+  function redondearM2(n) { return n > 0 ? Math.round(n * 100) / 100 : n; }
+
   function leer() {
     var fd = new FormData(form);
     return {
-      m2: parseNum(fd.get('m2'), true),
+      m2: redondearM2(parseNum(fd.get('m2'), true)),
       m2Texto: String(fd.get('m2') || '').trim(),
       altura: fd.get('altura'),
       textura: fd.get('textura'),
@@ -422,7 +433,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
 
     $('#l-base-label').textContent = 'Textura media, ' + c.alt.label.toLowerCase();
     $('#l-base').textContent = aConvenir ? 'A convenir' : money(c.alt.precio) + '/m²';
-    $('#row-fina').hidden = aConvenir || !c.tex.extra;
+    $('#row-fina').hidden = !c.tex.extra;
     $('#l-fina').textContent = '+ ' + money(c.tex.extra) + '/m²';
     $('#l-pm2').textContent = aConvenir ? 'A convenir' : money(c.precioM2);
     $('#l-m2').textContent = s.m2 > 0 ? fmtNum.format(s.m2) + ' m²' : '—';
@@ -456,6 +467,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   }
 
   form.addEventListener('input', render);
+  window.addEventListener('pageshow', render);
   form.addEventListener('change', render);
   form.addEventListener('submit', function (e) { e.preventDefault(); });
 
@@ -465,6 +477,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   });
 
   $('#send').addEventListener('click', function (e) {
+    render();
     var s = leer();
     if (!(s.m2 > 0)) {
       e.preventDefault();
@@ -530,7 +543,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
 
   function renderThumbs() {
     var ul = $('#thumbs');
-    ul.replaceChildren();
+    ul.textContent = '';
     photos.forEach(function (p, i) {
       var li = document.createElement('li');
       var img = document.createElement('img');
@@ -541,11 +554,14 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
       b.textContent = 'Quitar';
       b.setAttribute('aria-label', 'Quitar foto ' + (i + 1));
       b.addEventListener('click', function () {
+        var idx = photos.indexOf(p);
         URL.revokeObjectURL(p.url);
-        photos.splice(photos.indexOf(p), 1);
+        photos.splice(idx, 1);
         $('#fotos-err').hidden = true;
         renderThumbs();
         render();
+        var siguiente = document.querySelectorAll('#thumbs button')[Math.min(idx, photos.length - 1)];
+        (siguiente || $('#fotos')).focus();
       });
       li.appendChild(img);
       li.appendChild(b);
@@ -585,7 +601,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   var shareFailed = false;
   function renderPhotoStep() {
     var box = $('#photo-step');
-    box.replaceChildren();
+    box.textContent = '';
     var p = document.createElement('p');
     if (!photos.length) {
       p.className = 'hint';
@@ -604,7 +620,8 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
       box.appendChild(b);
       box.appendChild(p);
     } else {
-      p.textContent = 'Cuando se abra el chat, adjuntá ' + cuales + ' con el clip de WhatsApp.';
+      p.textContent = 'Cuando se abra el chat, adjuntá ' + cuales + ' desde la galería con el clip de WhatsApp. ' +
+        'Si las sacaste desde esta página, no quedan guardadas en el teléfono: sacalas de nuevo con la cámara de WhatsApp.';
       box.appendChild(p);
     }
   }
@@ -612,9 +629,11 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   function compartirFotos() {
     var files = photos.map(function (p) { return p.file; });
     navigator.share({ files: files }).catch(function (e) {
-      if (e && e.name === 'AbortError') return;
+      if (e && (e.name === 'AbortError' || e.name === 'InvalidStateError')) return;
       shareFailed = true;
       renderPhotoStep();
+      var aviso = $('#photo-step p');
+      if (aviso) { aviso.tabIndex = -1; aviso.focus(); }
     });
   }
 
@@ -642,6 +661,7 @@ details.calc summary:focus-visible{outline:3px solid var(--focus);outline-offset
   /* ---------- Barra inferior (celular) ---------- */
   $('#bar-go').addEventListener('click', function () {
     $('#quote').scrollIntoView({ block: 'start', behavior: smooth() });
+    $('#q-title').focus({ preventScroll: true });
   });
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (entries) {

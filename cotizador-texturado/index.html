@@ -57,7 +57,7 @@
 [hidden]{display:none!important}
 html{scroll-padding-bottom:96px}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
-h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 button,input,textarea{font:inherit;color:inherit}
 p{margin:0}
 .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
@@ -100,6 +100,18 @@ h1{font-weight:850;font-stretch:122%;font-size:clamp(2.2rem,9vw,3.7rem);line-hei
 .swatch{display:block;height:58px;margin-bottom:8px;border-radius:6px;border:1px solid var(--line);background-color:var(--wall);background-size:120px 120px}
 .swatch-media{background-image:var(--grain-media,none)}
 .swatch-fina{background-image:var(--grain-fina,none)}
+.swatch-gruesa{background-image:var(--grain-gruesa,none)}
+.opt-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opt-sub{font-size:.88rem;color:var(--muted)}
+/* Texturas: en el celular, una por fila con la muestra a la izquierda; en pantallas anchas, tres columnas */
+.opts-tex{grid-template-columns:minmax(0,1fr)}
+.opts-tex .opt-body{flex-direction:row;align-items:center;gap:14px}
+.opts-tex .swatch{flex:none;width:76px;height:56px;margin:0}
+@media (min-width:600px){
+  .opts-tex{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .opts-tex .opt-body{flex-direction:column;align-items:stretch;gap:8px}
+  .opts-tex .swatch{width:auto;height:58px}
+}
 
 /* Chips (lugar, zona) */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -169,6 +181,9 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
 .q-total span{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .q-total output{font-family:var(--font-display);font-weight:900;font-stretch:112%;font-size:clamp(2.1rem,9vw,2.5rem);line-height:1.05;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .q-note{font-family:var(--font-display);color:var(--muted);font-size:.93rem}
+.q-mat{display:grid;gap:10px;padding-top:14px;border-top:1px dashed var(--line)}
+.q-mat h3{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.q-mat dd{white-space:normal}
 .photo-step{display:grid;gap:8px}
 .photo-step p{font-size:.93rem}
 .contact{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
@@ -233,13 +248,13 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     </section>
 
     <section class="block" aria-labelledby="h-alt">
-      <div class="block-head"><h2 id="h-alt">Altura de trabajo</h2><p class="hint">Precio por m² con textura media</p></div>
+      <div class="block-head"><h2 id="h-alt">Altura de trabajo</h2><p class="hint" id="alt-hint">Precio por m² con textura media</p></div>
       <div class="opts" id="opts-altura" role="radiogroup" aria-labelledby="h-alt"></div>
     </section>
 
     <section class="block" aria-labelledby="h-tex">
       <div class="block-head"><h2 id="h-tex">Textura</h2><p class="hint" id="tex-hint"></p></div>
-      <div class="opts" id="opts-textura" role="radiogroup" aria-labelledby="h-tex"></div>
+      <div class="opts opts-tex" id="opts-textura" role="radiogroup" aria-labelledby="h-tex"></div>
     </section>
 
     <section class="block" aria-labelledby="h-lugar">
@@ -276,14 +291,23 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
   <aside class="quote" id="quote" aria-labelledby="q-title">
     <div class="q-head"><h2 id="q-title" tabindex="-1">Presupuesto estimado</h2><span class="q-date" id="q-date"></span></div>
     <dl class="q-lines">
-      <div><dt id="l-base-label">Textura media, hasta 4 m</dt><dd id="l-base">—</dd></div>
-      <div id="row-fina" hidden><dt>Textura fina</dt><dd id="l-fina">—</dd></div>
+      <div><dt>Textura</dt><dd id="l-tex">—</dd></div>
+      <div><dt id="l-base-label">Altura hasta 4 m</dt><dd id="l-base">—</dd></div>
+      <div id="row-extra" hidden><dt id="l-extra-label">Recargo textura fina</dt><dd id="l-extra">—</dd></div>
       <div><dt>Base</dt><dd>Incluida</dd></div>
       <div class="q-strong"><dt>Precio por m²</dt><dd id="l-pm2">—</dd></div>
       <div><dt>Superficie</dt><dd id="l-m2">—</dd></div>
     </dl>
     <div class="q-total"><span>Total mano de obra</span><output id="total" aria-live="polite">—</output></div>
     <p class="q-note" id="q-note">Cargá los metros cuadrados para ver el total.</p>
+    <section class="q-mat" aria-labelledby="mat-title">
+      <h3 id="mat-title">Material necesario</h3>
+      <dl class="q-lines">
+        <div><dt id="mat-tex-label">Textura media</dt><dd id="mat-tex">—</dd></div>
+        <div><dt id="mat-base-label">Base</dt><dd id="mat-base">—</dd></div>
+      </dl>
+      <p class="q-note" id="mat-note"></p>
+    </section>
     <a class="btn send" id="send" href="https://wa.me/5491137654777" target="_blank" rel="noopener noreferrer">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3zm0 1.8a7.2 7.2 0 1 1-3.7 13.4l-.3-.2-2.4.6.7-2.3-.2-.3A7.2 7.2 0 0 1 12 4.8z"/></svg>
       Enviar pedido por WhatsApp
@@ -323,11 +347,17 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
       { id: '6',   label: 'Hasta 6 m',  max: 6, precio: 7000 },
       { id: 'mas', label: 'Más de 6 m', max: Infinity, precio: null } // null = a convenir
     ],
-    // Recargo por m² según la textura
+    // Por textura: recargo por m² sobre el precio de la altura y cuántos m² rinde un balde
     texturas: [
-      { id: 'media', label: 'Textura media', extra: 0 },
-      { id: 'fina',  label: 'Textura fina',  extra: 1000 }
+      { id: 'fina',   nombre: 'Fina',   extra: 1000, rinde: 18 },
+      { id: 'media',  nombre: 'Media',  extra: 0,    rinde: 15, defecto: true },
+      { id: 'gruesa', nombre: 'Gruesa', extra: 0,    rinde: 9 }
     ],
+    // Material: nombre del envase del texturado y rendimiento de la base
+    material: {
+      envase: 'balde', envases: 'baldes',
+      base: { nombre: 'Base Tarquini', litrosEnvase: 20, rindeEnvase: 80 } // 20 L rinden 80 m²
+    },
     lugares: ['Interior', 'Exterior', 'Interior y exterior'],
     zonas: ['CABA', 'Zona Norte', 'Zona Sur', 'Zona Oeste', 'Otra'],
     maxFotos: 8
@@ -337,6 +367,11 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
   var fmtNum = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 });
   var fmtInt = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
   function money(n) { return '$' + fmtInt.format(n); }
+  function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+  // Redondea hacia arriba sin que un error de coma flotante sume un envase de más
+  function hastaArriba(x) { return Math.ceil(x - 1e-9); }
+  CONFIG.texturas.forEach(function (t) { t.label = 'Textura ' + t.nombre.toLowerCase(); });
+  var texDefecto = CONFIG.texturas.filter(function (t) { return t.defecto; })[0] || CONFIG.texturas[0];
 
   var form = $('#form');
   var photos = []; // { file, url }
@@ -366,15 +401,22 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
       '<span class="opt-price">' + (a.precio == null ? 'A convenir' : money(a.precio) + '/m²') + '</span>');
   }).join('');
 
-  $('#opts-textura').innerHTML = CONFIG.texturas.map(function (t, i) {
-    return optCard('textura', t.id, i === 0,
+  $('#opts-textura').innerHTML = CONFIG.texturas.map(function (t) {
+    return optCard('textura', t.id, t === texDefecto,
       '<span class="swatch swatch-' + t.id + '" aria-hidden="true"></span>' +
-      '<span class="opt-title">' + t.label + '</span>' +
-      '<span class="opt-price">' + (t.extra ? '+ ' + money(t.extra) + '/m²' : 'Precio base') + '</span>');
+      '<span class="opt-text"><span class="opt-title">' + t.nombre + '</span>' +
+      '<span class="opt-price">' + (t.extra ? '+ ' + money(t.extra) + '/m²' : 'Precio base') + '</span>' +
+      '<span class="opt-sub">Rinde ' + t.rinde + ' m² por ' + CONFIG.material.envase + '</span></span>');
   }).join('');
 
-  var fina = CONFIG.texturas.filter(function (t) { return t.extra; })[0];
-  $('#tex-hint').textContent = fina ? 'La fina suma ' + money(fina.extra) + ' por m²' : '';
+  var conRecargo = CONFIG.texturas.filter(function (t) { return t.extra; });
+  var sinRecargo = CONFIG.texturas.filter(function (t) { return !t.extra; });
+  function nombres(lista) { return lista.map(function (t) { return t.nombre.toLowerCase(); }).join(' o '); }
+  $('#tex-hint').textContent = conRecargo.map(function (t) {
+    return 'La ' + t.nombre.toLowerCase() + ' suma ' + money(t.extra) + ' por m²';
+  }).join('. ');
+  $('#alt-hint').textContent = 'Precio por m² con textura ' + nombres(sinRecargo);
+  $('#mat-base-label').textContent = CONFIG.material.base.nombre;
   $('#chips-lugar').innerHTML = CONFIG.lugares.map(function (l) { return chip('lugar', l); }).join('');
   $('#chips-zona').innerHTML = CONFIG.zonas.map(function (z) { return chip('zona', z); }).join('');
 
@@ -404,10 +446,27 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
 
   function calcular(s) {
     var alt = CONFIG.alturas.filter(function (a) { return a.id === s.altura; })[0] || CONFIG.alturas[0];
-    var tex = CONFIG.texturas.filter(function (t) { return t.id === s.textura; })[0] || CONFIG.texturas[0];
+    var tex = CONFIG.texturas.filter(function (t) { return t.id === s.textura; })[0] || texDefecto;
     var precioM2 = alt.precio == null ? null : alt.precio + tex.extra;
     var total = precioM2 != null && s.m2 > 0 ? Math.round(precioM2 * s.m2) : null;
-    return { alt: alt, tex: tex, precioM2: precioM2, total: total };
+    return { alt: alt, tex: tex, precioM2: precioM2, total: total, mat: material(s.m2, tex) };
+  }
+
+  // Envases de texturado según el rendimiento de la textura, y litros y envases de base
+  function material(m2, tex) {
+    if (!(m2 > 0)) return null;
+    var base = CONFIG.material.base;
+    return {
+      envases: hastaArriba(m2 / tex.rinde),
+      exacto: m2 / tex.rinde,
+      litrosBase: hastaArriba(m2 * base.litrosEnvase / base.rindeEnvase),
+      envasesBase: hastaArriba(m2 / base.rindeEnvase)
+    };
+  }
+
+  function textoEnvases(n) { return plural(n, CONFIG.material.envase, CONFIG.material.envases); }
+  function textoBase(mat) {
+    return plural(mat.envasesBase, CONFIG.material.envase, CONFIG.material.envases) + ' de ' + CONFIG.material.base.litrosEnvase + ' L';
   }
 
   function mensaje(s, c) {
@@ -418,12 +477,19 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     if (s.lugar) L.push('Lugar: ' + s.lugar);
     L.push('Superficie: ' + (s.m2 > 0 ? fmtNum.format(s.m2) + ' m²' : 'a definir'));
     L.push('Altura: ' + c.alt.label.toLowerCase());
-    L.push('Textura: ' + c.tex.label.replace('Textura ', ''));
+    L.push('Textura: ' + c.tex.nombre.toLowerCase());
     if (c.precioM2 != null) L.push('Precio por m²: ' + money(c.precioM2));
     L.push('Total estimado: ' + (c.total != null ? money(c.total) : (c.precioM2 == null ? 'a convenir' : 'a definir')));
+    if (c.mat) {
+      L.push('');
+      L.push('Material necesario:');
+      L.push('- ' + c.tex.label + ': ' + textoEnvases(c.mat.envases) + ' (rinde ' + c.tex.rinde + ' m² c/u)');
+      L.push('- ' + CONFIG.material.base.nombre + ': ' + c.mat.litrosBase + ' L (' + textoBase(c.mat) + ')');
+      L.push('');
+    }
     if (photos.length) L.push('Fotos: ' + photos.length + ' (te las mando por acá)');
     if (s.comentario) { L.push(''); L.push('Comentario: ' + s.comentario); }
-    return L.join('\n');
+    return L.join('\n').replace(/\n+$/, '');
   }
 
   function render() {
@@ -431,10 +497,12 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     var c = calcular(s);
     var aConvenir = c.precioM2 == null;
 
-    $('#l-base-label').textContent = 'Textura media, ' + c.alt.label.toLowerCase();
+    $('#l-tex').textContent = c.tex.nombre;
+    $('#l-base-label').textContent = 'Altura ' + c.alt.label.toLowerCase();
     $('#l-base').textContent = aConvenir ? 'A convenir' : money(c.alt.precio) + '/m²';
-    $('#row-fina').hidden = !c.tex.extra;
-    $('#l-fina').textContent = '+ ' + money(c.tex.extra) + '/m²';
+    $('#row-extra').hidden = !c.tex.extra;
+    $('#l-extra-label').textContent = 'Recargo ' + c.tex.label.toLowerCase();
+    $('#l-extra').textContent = '+ ' + money(c.tex.extra) + '/m²';
     $('#l-pm2').textContent = aConvenir ? 'A convenir' : money(c.precioM2);
     $('#l-m2').textContent = s.m2 > 0 ? fmtNum.format(s.m2) + ' m²' : '—';
 
@@ -447,6 +515,18 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     else if (!(s.m2 > 0)) note = 'Cargá los metros cuadrados para ver el total.';
     else note = fmtNum.format(s.m2) + ' m² × ' + money(c.precioM2) + ' el m².';
     $('#q-note').textContent = note;
+
+    var base = CONFIG.material.base;
+    $('#mat-tex-label').textContent = c.tex.label;
+    $('#mat-tex').textContent = c.mat ? textoEnvases(c.mat.envases) : '—';
+    $('#mat-base').textContent = c.mat ? textoBase(c.mat) : '—';
+    $('#mat-note').textContent = c.mat
+      ? fmtNum.format(s.m2) + ' m² ÷ ' + c.tex.rinde + ' m² por ' + CONFIG.material.envase + ' = ' +
+        fmtNum.format(Math.round(c.mat.exacto * 100) / 100) + ', se redondea a ' + textoEnvases(c.mat.envases) + '. ' +
+        'Base: ' + c.mat.litrosBase + ' L (' + base.litrosEnvase + ' L rinden ' + base.rindeEnvase + ' m²). Cantidades estimadas.'
+      : 'Cargá los m² para calcular el material. Cada ' + CONFIG.material.envase + ' rinde ' +
+        CONFIG.texturas.map(function (t) { return t.rinde + ' m² en ' + t.nombre.toLowerCase(); }).join(', ') +
+        '. Base: ' + base.litrosEnvase + ' L cada ' + base.rindeEnvase + ' m².';
 
     $('#send').href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(mensaje(s, c));
 
@@ -699,6 +779,8 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
   var finaG = grain(160, 2600, 0.35, 0.9, 0.35);
   if (media) document.documentElement.style.setProperty('--grain-media', 'url("' + media + '")');
   if (finaG) document.documentElement.style.setProperty('--grain-fina', 'url("' + finaG + '")');
+  var gruesaG = grain(160, 420, 1.6, 3.6, 1.3);
+  if (gruesaG) document.documentElement.style.setProperty('--grain-gruesa', 'url("' + gruesaG + '")');
 
   renderThumbs();
   render();

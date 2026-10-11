@@ -12,7 +12,10 @@ Es un solo archivo: `index.html`. No necesita servidor, base de datos ni instala
   - Hasta 5 m: **$6.000/m²**
   - Hasta 6 m: **$7.000/m²**
   - Más de 6 m: **a convenir**
-- Elige la **textura**: media (precio base) o fina (**+$1.000/m²**).
+- Elige la **textura**: fina (**+$1.000/m²**), media o gruesa (precio base).
+- Ve el **material necesario** según los m²:
+  - Texturado: cada balde rinde **18 m² en fina, 15 m² en media y 9 m² en gruesa**. Se redondea hacia arriba (40 m² de media = 2,67 → 3 baldes).
+  - Base Tarquini: **20 L rinden 80 m²**. Muestra los litros y cuántos baldes de 20 L comprar.
 - Marca si es **interior, exterior o ambos**.
 - Elige la **zona de la obra** (CABA, Zona Norte, Sur, Oeste u otra) y puede escribir el barrio.
 - Puede **subir fotos** de la pared.
@@ -29,6 +32,11 @@ Altura: hasta 5 m
 Textura: fina
 Precio por m²: $7.000
 Total estimado: $248.500
+
+Material necesario:
+- Textura fina: 2 baldes (rinde 18 m² c/u)
+- Base Tarquini: 9 L (1 balde de 20 L)
+
 Fotos: 2 (te las mando por acá)
 ```
 
@@ -54,14 +62,19 @@ alturas: [
   { id: '6',   label: 'Hasta 6 m',  max: 6, precio: 7000 },
   { id: 'mas', label: 'Más de 6 m', max: Infinity, precio: null } // a convenir
 ],
-texturas: [
-  { id: 'media', label: 'Textura media', extra: 0 },
-  { id: 'fina',  label: 'Textura fina',  extra: 1000 }
+texturas: [                                   // extra = recargo por m², rinde = m² por balde
+  { id: 'fina',   nombre: 'Fina',   extra: 1000, rinde: 18 },
+  { id: 'media',  nombre: 'Media',  extra: 0,    rinde: 15, defecto: true },
+  { id: 'gruesa', nombre: 'Gruesa', extra: 0,    rinde: 9 }
 ],
+material: {
+  envase: 'balde', envases: 'baldes',
+  base: { nombre: 'Base Tarquini', litrosEnvase: 20, rindeEnvase: 80 }
+},
 zonas: ['CABA', 'Zona Norte', 'Zona Sur', 'Zona Oeste', 'Otra'],
 ```
 
-Cambiá los números, guardá y volvé a subir el archivo. Todos los textos de precios de la página se actualizan solos.
+Cambiá los números, guardá y volvé a subir el archivo. Los textos de precios y de material de la página se actualizan solos.
 
 ## Publicarla en Internet
 

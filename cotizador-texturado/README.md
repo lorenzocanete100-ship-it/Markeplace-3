@@ -69,7 +69,7 @@ texturas: [                                   // extra = recargo por m², rinde 
 ],
 material: {
   envase: 'balde', envases: 'baldes',
-  base: { nombre: 'Base Tarquini', litrosEnvase: 20, rindeEnvase: 80 }
+  base: { nombre: 'Base Tarquini', envase: 'balde', envases: 'baldes', litrosEnvase: 20, rindeEnvase: 80 }
 },
 zonas: ['CABA', 'Zona Norte', 'Zona Sur', 'Zona Oeste', 'Otra'],
 ```

@@ -205,7 +205,7 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (forced-colors:active){
   .opt input:checked+.opt-body,.chip input:checked+span{forced-color-adjust:none;background:Highlight;color:HighlightText;border-color:Highlight}
-  .opt input:checked+.opt-body .opt-price{color:HighlightText}
+  .opt input:checked+.opt-body .opt-price,.opt input:checked+.opt-body .opt-sub{color:HighlightText}
 }
 </style>
 </head>
@@ -300,6 +300,12 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     </dl>
     <div class="q-total"><span>Total mano de obra</span><output id="total" aria-live="polite">—</output></div>
     <p class="q-note" id="q-note">Cargá los metros cuadrados para ver el total.</p>
+    <a class="btn send" id="send" href="https://wa.me/5491137654777" target="_blank" rel="noopener noreferrer">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3zm0 1.8a7.2 7.2 0 1 1-3.7 13.4l-.3-.2-2.4.6.7-2.3-.2-.3A7.2 7.2 0 0 1 12 4.8z"/></svg>
+      Enviar pedido por WhatsApp
+    </a>
+    <p class="err" id="send-err" role="alert" hidden></p>
+    <div class="photo-step" id="photo-step"></div>
     <section class="q-mat" aria-labelledby="mat-title">
       <h3 id="mat-title">Material necesario</h3>
       <dl class="q-lines">
@@ -308,12 +314,6 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
       </dl>
       <p class="q-note" id="mat-note"></p>
     </section>
-    <a class="btn send" id="send" href="https://wa.me/5491137654777" target="_blank" rel="noopener noreferrer">
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3zm0 1.8a7.2 7.2 0 1 1-3.7 13.4l-.3-.2-2.4.6.7-2.3-.2-.3A7.2 7.2 0 0 1 12 4.8z"/></svg>
-      Enviar pedido por WhatsApp
-    </a>
-    <p class="err" id="send-err" role="alert" hidden></p>
-    <div class="photo-step" id="photo-step"></div>
     <div class="contact">
       <p><span>WhatsApp</span><strong id="wa-num" data-wa-visible>11 3765-4777</strong></p>
       <button type="button" class="btn line small" id="copy">Copiar número</button>
@@ -356,7 +356,7 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     // Material: nombre del envase del texturado y rendimiento de la base
     material: {
       envase: 'balde', envases: 'baldes',
-      base: { nombre: 'Base Tarquini', litrosEnvase: 20, rindeEnvase: 80 } // 20 L rinden 80 m²
+      base: { nombre: 'Base Tarquini', envase: 'balde', envases: 'baldes', litrosEnvase: 20, rindeEnvase: 80 } // 20 L rinden 80 m²
     },
     lugares: ['Interior', 'Exterior', 'Interior y exterior'],
     zonas: ['CABA', 'Zona Norte', 'Zona Sur', 'Zona Oeste', 'Otra'],
@@ -367,7 +367,7 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
   var fmtNum = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 });
   var fmtInt = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
   function money(n) { return '$' + fmtInt.format(n); }
-  function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+  function plural(n, uno, varios) { return fmtInt.format(n) + ' ' + (n === 1 ? uno : varios); }
   // Redondea hacia arriba sin que un error de coma flotante sume un envase de más
   function hastaArriba(x) { return Math.ceil(x - 1e-9); }
   CONFIG.texturas.forEach(function (t) { t.label = 'Textura ' + t.nombre.toLowerCase(); });
@@ -406,7 +406,7 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
       '<span class="swatch swatch-' + t.id + '" aria-hidden="true"></span>' +
       '<span class="opt-text"><span class="opt-title">' + t.nombre + '</span>' +
       '<span class="opt-price">' + (t.extra ? '+ ' + money(t.extra) + '/m²' : 'Precio base') + '</span>' +
-      '<span class="opt-sub">Rinde ' + t.rinde + ' m² por ' + CONFIG.material.envase + '</span></span>');
+      '<span class="opt-sub">Rinde ' + fmtNum.format(t.rinde) + ' m² por ' + CONFIG.material.envase + '</span></span>');
   }).join('');
 
   var conRecargo = CONFIG.texturas.filter(function (t) { return t.extra; });
@@ -466,7 +466,8 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
 
   function textoEnvases(n) { return plural(n, CONFIG.material.envase, CONFIG.material.envases); }
   function textoBase(mat) {
-    return plural(mat.envasesBase, CONFIG.material.envase, CONFIG.material.envases) + ' de ' + CONFIG.material.base.litrosEnvase + ' L';
+    var b = CONFIG.material.base;
+    return plural(mat.envasesBase, b.envase, b.envases) + ' de ' + fmtNum.format(b.litrosEnvase) + ' L';
   }
 
   function mensaje(s, c) {
@@ -483,11 +484,10 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     if (c.mat) {
       L.push('');
       L.push('Material necesario:');
-      L.push('- ' + c.tex.label + ': ' + textoEnvases(c.mat.envases) + ' (rinde ' + c.tex.rinde + ' m² c/u)');
-      L.push('- ' + CONFIG.material.base.nombre + ': ' + c.mat.litrosBase + ' L (' + textoBase(c.mat) + ')');
-      L.push('');
+      L.push('- ' + c.tex.label + ': ' + textoEnvases(c.mat.envases) + ' (rinde ' + fmtNum.format(c.tex.rinde) + ' m² c/u)');
+      L.push('- ' + CONFIG.material.base.nombre + ': ' + fmtInt.format(c.mat.litrosBase) + ' L (' + textoBase(c.mat) + ')');
     }
-    if (photos.length) L.push('Fotos: ' + photos.length + ' (te las mando por acá)');
+    if (photos.length) { L.push(''); L.push('Fotos: ' + photos.length + ' (te las mando por acá)'); }
     if (s.comentario) { L.push(''); L.push('Comentario: ' + s.comentario); }
     return L.join('\n').replace(/\n+$/, '');
   }
@@ -520,13 +520,21 @@ details.calc summary:focus-visible{outline:3px solid var(--accent);outline-offse
     $('#mat-tex-label').textContent = c.tex.label;
     $('#mat-tex').textContent = c.mat ? textoEnvases(c.mat.envases) : '—';
     $('#mat-base').textContent = c.mat ? textoBase(c.mat) : '—';
+    var cuenta = '';
+    if (c.mat) {
+      var q = c.mat.exacto;
+      var justo = Math.abs(q - Math.round(q)) < 1e-9;
+      // Si no es exacto, el cociente mostrado nunca queda en el entero de abajo (1,0007 se ve 1,01)
+      cuenta = justo
+        ? textoEnvases(c.mat.envases)
+        : fmtNum.format(Math.max(Math.round(q * 100) / 100, Math.floor(q) + 0.01)) + ', se redondea a ' + textoEnvases(c.mat.envases);
+    }
     $('#mat-note').textContent = c.mat
-      ? fmtNum.format(s.m2) + ' m² ÷ ' + c.tex.rinde + ' m² por ' + CONFIG.material.envase + ' = ' +
-        fmtNum.format(Math.round(c.mat.exacto * 100) / 100) + ', se redondea a ' + textoEnvases(c.mat.envases) + '. ' +
-        'Base: ' + c.mat.litrosBase + ' L (' + base.litrosEnvase + ' L rinden ' + base.rindeEnvase + ' m²). Cantidades estimadas.'
+      ? fmtNum.format(s.m2) + ' m² ÷ ' + fmtNum.format(c.tex.rinde) + ' m² por ' + CONFIG.material.envase + ' = ' + cuenta + '. ' +
+        'Base: ' + fmtInt.format(c.mat.litrosBase) + ' L (' + fmtNum.format(base.litrosEnvase) + ' L rinden ' + fmtNum.format(base.rindeEnvase) + ' m²). Cantidades estimadas.'
       : 'Cargá los m² para calcular el material. Cada ' + CONFIG.material.envase + ' rinde ' +
-        CONFIG.texturas.map(function (t) { return t.rinde + ' m² en ' + t.nombre.toLowerCase(); }).join(', ') +
-        '. Base: ' + base.litrosEnvase + ' L cada ' + base.rindeEnvase + ' m².';
+        CONFIG.texturas.map(function (t) { return fmtNum.format(t.rinde) + ' m² en ' + t.nombre.toLowerCase(); }).join(', ') +
+        '. Base: ' + fmtNum.format(base.litrosEnvase) + ' L cada ' + fmtNum.format(base.rindeEnvase) + ' m².';
 
     $('#send').href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(mensaje(s, c));
 
